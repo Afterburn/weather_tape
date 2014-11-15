@@ -1,0 +1,12 @@
+[Unit]
+Description=BlinkyTape weather daemon
+
+[Service]
+User=root
+WorkingDirectory=/etc/had
+ExecStart=/usr/bin/python2 /etc/weather_tape/weather_daemon.py
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target
