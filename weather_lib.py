@@ -76,35 +76,34 @@ class Weather():
             self.lightning()
 
 
-    def precip(self, intensity=1, sleep_range=5):
-        for x in range(intensity):
-            rp = self.random_pixel()
+    def precip(self, intensity=1, sleep_range=5, amount=5):
+        rp = self.random_pixel()
 
-            if rp not in self.precip_buffer:
-                self.precip_buffer.append(rp)
+        if rp not in self.precip_buffer:
+            self.precip_buffer.append(rp)
 
-            #self.strip.set_pixel(self.random_pixel(), self.rain_color[0], self.rain_color[1], self.rain_color[2])
+        #self.strip.set_pixel(self.random_pixel(), self.rain_color[0], self.rain_color[1], self.rain_color[2])
 
-            for position in self.precip_buffer:
-                if self.temp <= 32:
-                    self.strip.set_pixel(position, self.snow_color[0], self.snow_color[1], self.snow_color[2])
+        for position in self.precip_buffer:
+            if self.temp <= 32:
+                self.strip.set_pixel(position, self.snow_color[0], self.snow_color[1], self.snow_color[2])
                 
-                else:
-                    self.strip.set_pixel(position, self.rain_color[0], self.rain_color[1], self.rain_color[2])
+            else:
+                self.strip.set_pixel(position, self.rain_color[0], self.rain_color[1], self.rain_color[2])
             
-            self.strip.write_buffer()
-
-        #self.strip.set_pixel(self.random_pixel(), self.color[0], self.color[1], self.color[2])
-
-        if len(self.precip_buffer):
-            rp_off = random.choice(self.precip_buffer)
-            self.strip.set_pixel(rp_off, self.color[0], self.color[1], self.color[2])
-
         self.strip.write_buffer()
 
+        # Looks more realistic if you wait a second, then turn turn a pixel back to normal. 
+        
+        if len(self.precip_buffer) >= amount:
+            rp_off = random.choice(self.precip_buffer)
+            self.strip.set_pixel(rp_off, self.color[0], self.color[1], self.color[2])
+            self.precip_buffer.remove(rp_off)
+            self.strip.write_buffer()
+       
         time.sleep(random.randrange(0, sleep_range))
 
-    
+
     def temp_to_color(self, temp):
         for key in sorted(self.color_map.keys()):
             if temp < key:
