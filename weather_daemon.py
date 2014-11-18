@@ -1,22 +1,26 @@
 
 import time
+import datetime
 import multiprocessing
 
 import weather_lib
 
 
 lib = weather_lib.Weather()
+lib.read_weather()
+
+
+next_check = datetime.datetime.now() + datetime.timedelta(minutes=lib.read_interval)
 
 while True:
-    try:
-        lib.read_weather()
-    except Exception as e:
-        print(e)
-        lib.demo_temp_colors()
 
-    #lib.set_background(dim=True)
     lib.show_conditions()
     time.sleep(1)
+
+     
+    now = datetime.datetime.now()
+    if now > next_check:
+        next_check = now + datetime.timedelta(minutes=lib.read_interval)
 
 
 

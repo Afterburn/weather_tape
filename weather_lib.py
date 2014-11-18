@@ -41,6 +41,8 @@ class Weather():
         with open('/etc/weather_tape/config.json') as cfg:
             self.settings = json.load(cfg)['settings']
 
+        
+        self.read_interval = self.settings['read-interval']
 
     def demo_temp_colors(self):
         for key in sorted(self.color_map.keys()):
@@ -70,13 +72,25 @@ class Weather():
   
     def show_conditions(self):
         
-        self.precip(self.is_precip)
+        if self.is_precip:
+            self.precip()
+
+        elif len(self.precip_buffer):
+            self.remove_precip()
 
         if self.is_thunderstorm:
             self.lightning()
 
 
-    def precip(self, intensity=1, sleep_range=5, amount=5):
+    def remove_precip(self):
+        if len(self.precip_buffer):
+            rp_off = random.choice(self.precip_buffer)
+            self.strip.set_pixel(rp_off, self.color[0], self.color[1], self.color[2])
+            self.precip_buffer.remove(rp_off)
+            self.strip.write_buffer()
+
+
+    def add_precip(self, sleep_range=5, amount=5):
         rp = self.random_pixel()
 
         if rp not in self.precip_buffer:
@@ -96,10 +110,7 @@ class Weather():
         # Looks more realistic if you wait a second, then turn turn a pixel back to normal. 
         
         if len(self.precip_buffer) >= amount:
-            rp_off = random.choice(self.precip_buffer)
-            self.strip.set_pixel(rp_off, self.color[0], self.color[1], self.color[2])
-            self.precip_buffer.remove(rp_off)
-            self.strip.write_buffer()
+            self.remove_precip()
        
         time.sleep(random.randrange(0, sleep_range))
 
@@ -132,8 +143,8 @@ class Weather():
         
     def read_weather(self):
         try:
-            with open('/tmp/weather.json', 'r') as m_file:
-                data = json.load(m_file)
+            page = requests.get(self.api_url % (self.settings['api_key'], self.settings['state'], self.settings['zipcode']))
+            data = json.loads(page.text)
 
         except:
             self.strip.display_color(255, 0, 0)
@@ -141,6 +152,7 @@ class Weather():
             self.strip.display_color(255/3, 0, 0)
             time.sleep(1)
             return
+
 
         co              = data['current_observation']
         temp            = int(co['temp_f'])
@@ -153,7 +165,3 @@ class Weather():
             self.temp = temp
             self.set_background()
 
-    def write_weather(self):
-        page = requests.get(self.api_url % (self.settings['api_key'], self.settings['state'], self.settings['zipcode']))
-        with open('/tmp/weather.json', 'wb') as m_file:
-            m_file.write(page.text)
