@@ -1,5 +1,6 @@
 [Unit]
 Description=BlinkyTape weather daemon
+After=network.target
 
 [Service]
 User=root

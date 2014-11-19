@@ -1,0 +1,14 @@
+{
+    "settings":{
+        "api_key":"wunderground_api_key",
+        "blinkytape_port":"/dev/blinkytape",
+        "state":"CA",
+        "zipcode": 90210,
+        "dim":true,
+        "read-interval":10,
+        "imperial":true
+
+    }
+
+}
+         

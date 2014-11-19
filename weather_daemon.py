@@ -20,6 +20,8 @@ while True:
      
     now = datetime.datetime.now()
     if now > next_check:
+        print('checking')
+        lib.read_weather()
         next_check = now + datetime.timedelta(minutes=lib.read_interval)
 
 

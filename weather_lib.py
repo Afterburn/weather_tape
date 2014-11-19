@@ -41,8 +41,15 @@ class Weather():
         with open('/etc/weather_tape/config.json') as cfg:
             self.settings = json.load(cfg)['settings']
 
-        
+        # How many minutes should it wait before checking the weather.  
         self.read_interval = self.settings['read-interval']
+        self.imperial      = self.settings['imperial']
+
+        if self.imperial:
+            self.freezing_point = 32
+
+        else:
+            self.freezing_point = 0
 
     def demo_temp_colors(self):
         for key in sorted(self.color_map.keys()):
@@ -52,7 +59,7 @@ class Weather():
             time.sleep(2)
 
     def random_pixel(self):
-        return random.randrange(0,60)
+        return random.randrange(0, blinkytape.led_count)
 
 
     def lightning(self):
@@ -60,6 +67,7 @@ class Weather():
 
         c = random.randrange(0,4)
 
+        # This creates a 25% chance that it will "lightning".
         if c != 0:
             return 
 
@@ -75,6 +83,7 @@ class Weather():
         if self.is_precip:
             self.precip()
 
+        # We want to slowly remove the precip buffer. 
         elif len(self.precip_buffer):
             self.remove_precip()
 
@@ -96,10 +105,9 @@ class Weather():
         if rp not in self.precip_buffer:
             self.precip_buffer.append(rp)
 
-        #self.strip.set_pixel(self.random_pixel(), self.rain_color[0], self.rain_color[1], self.rain_color[2])
-
+        # If it is below 32F or 0C show "snow" instead of rain.   
         for position in self.precip_buffer:
-            if self.temp <= 32:
+            if self.temp <= self.freezing_temp:
                 self.strip.set_pixel(position, self.snow_color[0], self.snow_color[1], self.snow_color[2])
                 
             else:
@@ -107,11 +115,11 @@ class Weather():
             
         self.strip.write_buffer()
 
-        # Looks more realistic if you wait a second, then turn turn a pixel back to normal. 
-        
+        # Prevents the whole strip from turning into rain or snow. 
         if len(self.precip_buffer) >= amount:
             self.remove_precip()
-       
+      
+        # Little bit of random sleeping to make the rain seem more authentic. 
         time.sleep(random.randrange(0, sleep_range))
 
 
@@ -132,6 +140,7 @@ class Weather():
 
         print('Setting color to: %s - %s' % (self.temp, color))
 
+        # It looks better when you dim the strip, then show precip. 
         if self.settings['dim'] == True and self.is_precip == True:
             print('dimming')
             self.color = (color[0]/5, color[1]/5, color[2]/5)
