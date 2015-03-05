@@ -51,6 +51,10 @@ class Weather():
         else:
             self.freezing_point = 0
 
+        # Just to show its working
+        self.warning()
+
+
     def demo_temp_colors(self):
         for key in sorted(self.color_map.keys()):
             color = self.color_map[key]
@@ -58,8 +62,14 @@ class Weather():
             self.strip.display_color(color[0], color[1], color[2])
             time.sleep(2)
 
+    def warning(self):
+        self.strip.display_color(255,0,0)
+        time.sleep(1)
+        self.strip.display_color(0,0,0)
+        time.sleep(1)
+
     def random_pixel(self):
-        return random.randrange(0, blinkytape.led_count)
+        return random.randrange(0, self.strip.led_count)
 
 
     def lightning(self):
@@ -81,7 +91,7 @@ class Weather():
     def show_conditions(self):
         
         if self.is_precip:
-            self.precip()
+            self.add_precip()
 
         # We want to slowly remove the precip buffer. 
         elif len(self.precip_buffer):
@@ -107,7 +117,7 @@ class Weather():
 
         # If it is below 32F or 0C show "snow" instead of rain.   
         for position in self.precip_buffer:
-            if self.temp <= self.freezing_temp:
+            if self.temp <= self.freezing_point:
                 self.strip.set_pixel(position, self.snow_color[0], self.snow_color[1], self.snow_color[2])
                 
             else:
