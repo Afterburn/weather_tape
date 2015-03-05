@@ -1,0 +1,1 @@
+SUBSYSTEM=="tty", ATTRS{idProduct}=="605e", SYMLINK+="blinkytape"
