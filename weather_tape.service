@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=/etc/had
-ExecStart=/usr/bin/python2 /etc/weather_tape/weather_daemon.py
+ExecStart=/usr/bin/python2 /etc/weather_tape/main.py
 Restart=always
 
 

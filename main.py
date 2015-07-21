@@ -4,6 +4,7 @@ import time
 import random
 import copy
 import mmap
+import datetime
 
 import blinkytape
 
@@ -12,7 +13,6 @@ class Weather():
     def __init__(self,  dev_port='/dev/blinkytape'):
         self.api_url = 'http://api.wunderground.com/api/%s/conditions/q/%s/%s.json'
         self.strip   = blinkytape.BlinkyTape(dev_port)
-        self.settings = None
         self.temp = 30
         self.is_precip = False
         self.is_thunderstorm = False
@@ -151,7 +151,7 @@ class Weather():
         print('Setting color to: %s - %s' % (self.temp, color))
 
         # It looks better when you dim the strip, then show precip. 
-        if self.settings['dim'] == True and self.is_precip == True:
+        if self.settings['dim'] == True:
             print('dimming')
             self.color = (color[0]/5, color[1]/5, color[2]/5)
 
@@ -170,6 +170,7 @@ class Weather():
             time.sleep(1)
             self.strip.display_color(255/3, 0, 0)
             time.sleep(1)
+            print('unable to read weather: %s' % (page.url))
             return
 
 
@@ -183,4 +184,25 @@ class Weather():
         if temp != self.temp:
             self.temp = temp
             self.set_background()
+
+
+
+
+if __name__ == "__main__":
+    w = Weather()
+    w.read_weather()
+
+
+    next_check = datetime.datetime.now() + datetime.timedelta(minutes=w.read_interval)
+    
+    while True:
+        w.show_conditions()
+        time.sleep(1)
+
+        now = datetime.datetime.now()
+
+        if now > next_check:
+            print('checking')
+            lib.read_weather()
+            next_check = now + datetime.timedelta(minutes=w.read_interval)
 
